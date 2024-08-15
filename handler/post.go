@@ -8,7 +8,7 @@ import (
 )
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
-	//1. process http request: json string -> post struct
+	//1. process http request: json string -> post struct1
 	fmt.Println("Received one upload request")
 	decoder := json.NewDecoder(r.Body)
 	var p model.Post
