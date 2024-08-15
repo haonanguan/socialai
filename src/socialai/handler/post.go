@@ -18,4 +18,5 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	//2. call service level to handle business logic
 
 	//3. response
+	fmt.Fprintf(w, "Post received: %s\n", p.Message)
 }
