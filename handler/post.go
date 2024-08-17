@@ -34,8 +34,10 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	var posts []model.Post
 	var err error
 	if user != "" {
+		fmt.Println("Search by user: " + user)
 		posts, err = service.SearchPostsByUser(user)
 	} else {
+		fmt.Println("Search by keywords: " + keywords)
 		posts, err = service.SearchPostsByKeywords(keywords)
 	}
 
