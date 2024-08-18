@@ -1,6 +1,7 @@
 package service
 
 import (
+	"mime/multipart"
 	"reflect"
 
 	"socialai/backend"
@@ -41,4 +42,21 @@ func getPostFromSearchResult(searchResult *elastic.SearchResult) []model.Post {
 		posts = append(posts, p)
 	}
 	return posts
+}
+
+func SavePost(post *model.Post, file multipart.File) error {
+	medialink, err := backend.GCSBackend.SaveToGCS(file, post.Id)
+	if err != nil {
+		return err
+	}
+	post.Url = medialink
+
+	err = backend.ESBackend.SaveToES(post, constants.POST_INDEX, post.Id)
+	if err != nil {
+		// Consider rolling back the GCS upload by deleting the object
+		_ = backend.GCSBackend.DeleteFromGCS(post.Id) // Example of a rollback
+		return err
+	}
+
+	return nil
 }
