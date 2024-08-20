@@ -95,3 +95,21 @@ func (backend *ElasticsearchBackend) SaveToES(i interface{}, index string, id st
 		Do(context.Background())
 	return err
 }
+
+func (backend *ElasticsearchBackend) DeleteFromES(query elastic.Query, index string) error {
+	response, err := backend.client.DeleteByQuery().
+		Index(index).
+		Query(query).
+		Pretty(true).
+		Do(context.Background())
+
+	if err != nil {
+		return fmt.Errorf("failed to delete from ES: %v", err)
+	}
+
+	if response.Deleted == 0 {
+		return fmt.Errorf("no such post exists.")
+	}
+
+	return nil
+}

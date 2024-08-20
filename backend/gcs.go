@@ -63,6 +63,9 @@ func (backend *GoogleCloudStorageBackend) DeleteFromGCS(objectName string) error
 	// Delete the object
 	err := object.Delete(ctx)
 	if err != nil {
+		if err == storage.ErrObjectNotExist {
+			return fmt.Errorf("object %s not found in GCS", objectName)
+		}
 		return fmt.Errorf("failed to delete object %s from GCS: %v", objectName, err)
 	}
 

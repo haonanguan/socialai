@@ -20,6 +20,7 @@ func InitRouter() *mux.Router {
 
 	router.Handle("/upload", jwtMiddleware.Handler(http.HandlerFunc(uploadHandler))).Methods("POST")
 	router.Handle("/search", jwtMiddleware.Handler(http.HandlerFunc(searchHandler))).Methods("GET")
+	router.Handle("/post/{id}", jwtMiddleware.Handler(http.HandlerFunc(deleteHandler))).Methods("DELETE")
 	router.Handle("/signup", http.HandlerFunc(signupHandler)).Methods("POST")
 	router.Handle("/signin", http.HandlerFunc(signinHandler)).Methods("POST")
 	return router

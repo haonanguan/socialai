@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"socialai/backend"
 	"socialai/model"
 	"socialai/service"
 
 	jwt "github.com/form3tech-oss/jwt-go"
+	"github.com/gorilla/mux"
 	"github.com/pborman/uuid"
 )
 
@@ -61,7 +63,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Failed to save post to backend %v\n", err)
 		return
 	}
-	
+
 	//3. response
 	fmt.Println("Post is saved successfully.")
 }
@@ -99,4 +101,27 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(js)
+}
+
+func deleteHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received one request for delete")
+
+	user := r.Context().Value("user")
+	claims := user.(*jwt.Token).Claims
+	username := claims.(jwt.MapClaims)["username"].(string)
+	id := mux.Vars(r)["id"]
+
+	if err := service.DeletePost(id, username); err != nil {
+		http.Error(w, "Failed to delete post: ", http.StatusInternalServerError)
+		fmt.Printf("Failed to delete post: %v\n", err)
+		return
+	}
+
+	if err := backend.GCSBackend.DeleteFromGCS(id); err != nil {
+		http.Error(w, "Failed to delete post from GCS", http.StatusInternalServerError)
+		fmt.Printf("Failed to delete post from GCS %v\n", err)
+		return
+	}
+
+	fmt.Println("Post is deleted successfully")
 }

@@ -15,9 +15,10 @@ import (
 var mySigningKey = []byte("secret")
 
 func signinHandler(w http.ResponseWriter, r *http.Request) {
+	//1. process http request: json string -> User struct
 	fmt.Println("Received one signin request")
 	w.Header().Set("Content-Type", "text/plain")
-
+	
 	//  Get User information from client
 	decoder := json.NewDecoder(r.Body)
 	var user model.User
@@ -27,6 +28,7 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//2. call service level to handle business logic
 	success, err := service.CheckUser(user.Username, user.Password)
 	if err != nil {
 		http.Error(w, "Failed to read user from Elasticsearch", http.StatusInternalServerError)
@@ -39,7 +41,8 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("User doesn't exists or wrong password\n")
 		return
 	}
-
+	
+	//3. response： generate token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": user.Username,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
@@ -56,6 +59,7 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func signupHandler(w http.ResponseWriter, r *http.Request) {
+	//1. process http request: json string -> User struct
 	fmt.Println("Received one signup request")
 	w.Header().Set("Content-Type", "text/plain")
 
@@ -73,6 +77,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//2. call service level to handle business logic
 	success, err := service.AddUser(&user)
 	if err != nil {
 		http.Error(w, "Failed to save user to Elasticsearch", http.StatusInternalServerError)
@@ -85,5 +90,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("User already exists")
 		return
 	}
+
+	//3. response
 	fmt.Printf("User added successfully: %s.\n", user.Username)
 }

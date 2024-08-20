@@ -11,6 +11,8 @@ import (
 )
 
 func CheckUser(username, password string) (bool, error) {
+	//1. Search ES by username, then compare passwords
+	//2. Search ES by username+password, TotalHit() > 0
 	query := elastic.NewBoolQuery()
 	query.Must(elastic.NewTermQuery("username", username))
 	query.Must(elastic.NewTermQuery("password", password))
@@ -31,6 +33,7 @@ func CheckUser(username, password string) (bool, error) {
 }
 
 func AddUser(user *model.User) (bool, error) {
+	//1. check whether username already existed
 	query := elastic.NewTermQuery("username", user.Username)
 	searchResult, err := backend.ESBackend.ReadFromES(query, constants.USER_INDEX)
 	if err != nil {
@@ -40,7 +43,8 @@ func AddUser(user *model.User) (bool, error) {
 	if searchResult.TotalHits() > 0 {
 		return false, nil
 	}
-
+	
+	//2. if not exists, add user to ES
 	err = backend.ESBackend.SaveToES(user, constants.USER_INDEX, user.Username)
 	if err != nil {
 		return false, err
