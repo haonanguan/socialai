@@ -8,6 +8,7 @@ import (
 	"socialai/model"
 	"socialai/service"
 
+	jwt "github.com/form3tech-oss/jwt-go"
 	"github.com/pborman/uuid"
 )
 
@@ -26,11 +27,16 @@ var (
 )
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
-	//1. process http request: json string -> post struct + file
+	//1. process http request: multipart -> post struct + file
 	fmt.Println("Received one upload request")
+
+	token := r.Context().Value("user")
+	claims := token.(*jwt.Token).Claims
+	username := claims.(jwt.MapClaims)["username"]
+
 	p := model.Post{
 		Id:      uuid.New(),
-		User:    r.FormValue("user"),
+		User:    username.(string),
 		Message: r.FormValue("message"),
 	}
 
@@ -55,6 +61,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Failed to save post to backend %v\n", err)
 		return
 	}
+	
 	//3. response
 	fmt.Println("Post is saved successfully.")
 }
