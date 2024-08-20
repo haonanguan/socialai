@@ -108,7 +108,7 @@ func (backend *ElasticsearchBackend) DeleteFromES(query elastic.Query, index str
 	}
 
 	if response.Deleted == 0 {
-		return fmt.Errorf("no such post exists.")
+		return fmt.Errorf("no such post exists")
 	}
 
 	return nil
