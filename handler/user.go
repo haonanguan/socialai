@@ -12,8 +12,6 @@ import (
 	jwt "github.com/form3tech-oss/jwt-go"
 )
 
-var mySigningKey = []byte("secret")
-
 func signinHandler(w http.ResponseWriter, r *http.Request) {
 	//1. process http request: json string -> User struct
 	fmt.Println("Received one signin request")
@@ -77,7 +75,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//2. call service level to handle business logic
+	//2. validation + call service level to handle business logic
 	success, err := service.AddUser(&user)
 	if err != nil {
 		http.Error(w, "Failed to save user to Elasticsearch", http.StatusInternalServerError)
